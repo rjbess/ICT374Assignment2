@@ -163,3 +163,18 @@ void printComStruct(Command *com)
 	}
 	fprintf(stderr,"com_suffix=%c\n\n", com->commandSuffix);
 }
+void initialiseCommandArray(Command command[])
+{
+	for(int i=0;i<MAX_NUM_COMMANDS;i++)
+	{
+		command[i].commandPathName=NULL;
+		command[i].argc=0;
+		for(int j=0;j<MAX_NUM_ARGUMENTS;j++)
+		{
+			command[i].argv[j]=NULL;
+		}
+		command[i].commandSuffix=' ';
+		command[i].stdin_file=NULL;
+		command[i].stdout_file=NULL;
+	}
+}

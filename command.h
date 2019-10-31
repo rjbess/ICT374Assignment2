@@ -20,3 +20,4 @@ typedef struct CommandStruct Command;  // command type
 void buildCommandArgumentArray(char *token[], Command *cp, int *inCounter);
 void printComStruct(Command *command);
 int separateCommands(char *token[], Command command[]);
+void initialiseCommandArray(Command command[]);

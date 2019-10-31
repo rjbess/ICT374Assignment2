@@ -1,7 +1,5 @@
-#define MAX_NUM_TOKENS 100
+#define MAX_NUM_TOKENS 100000
 #define seperatingChars "\n\t "
 
-#include <string.h>
-
-int tokenise(char *inputLine, char *token[]);
-
+void tokenise(char *inputLine, char *token[]);
+void initialiseTokenArray(char *[]);

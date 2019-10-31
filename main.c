@@ -1,53 +1,74 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "token.c"
-#include "command.c"
+#include <errno.h>
+
+#include "token.h"
+#include "command.h"
+#include "menu.h"
+#include "additionalCommands.c"
+
 #include <unistd.h>
 #include <sys/types.h>
 
-#define BUFFER 128
+#define BUFFER MAX_NUM_TOKENS
+#define PIPEBUFFER 512
 
 int main()
 {
 	pid_t pid;
+	int p[2];
+
+	char *prompt="%";
+	int again=1;
+	int numCommands=0;
+
 	char input[BUFFER];
-	char *tokenArray[MAX_NUM_TOKENS];
-	for(int i=0;i<MAX_NUM_TOKENS;i++)
-	{
-		tokenArray[i]=NULL;
-	}
-	int numTokens=0,numCommands=0;
-
-	printf("$");
-	fgets(input, BUFFER, stdin);
+	char *tokenArray[BUFFER];
+	initialiseTokenArray(tokenArray);
 	
-	numCommands=tokenise(input, tokenArray);
-	Command commandArray[numCommands];
-
-	for(int i=0;i<numCommands;i++)
-	{
-		commandArray[i].commandPathName=NULL;
-		commandArray[i].argc=0;
-
-		for(int j=0;j<MAX_NUM_ARGUMENTS;j++)
+	Command commandArray[MAX_NUM_COMMANDS];
+	initialiseCommandArray(commandArray);
+	
+//	while(1)
+//	{
+		displayPrompt(prompt);
+		while(again)
 		{
-			
-			commandArray[i].argv[j]=NULL;
+			again=0;
+			fgets(input, BUFFER, stdin);
+			if(input==NULL)
+			{
+				if(errno==EINTR)
+				{
+					again=1;
+				}
+			}
 		}
-		commandArray[i].commandSuffix=' ';
-		commandArray[i].stdin_file=NULL;
-		commandArray[i].stdout_file=NULL;
-	}
-	numTokens=separateCommands(tokenArray, commandArray);
-	for(int i=0;i<numTokens;i++)
+		tokenise(input, tokenArray);
+		numCommands=separateCommands(tokenArray, commandArray);
+		
+		for(int i=0;i<numCommands;i++)
+		{
+			if(strcmp(commandArray[i].argv[0], "exit")==0)
+			{
+				exit(0);
+			}
+		
+			//create child processes
+			if(strcmp(commandArray[i].commandSuffix, "|")==0)
+			{
+				
+			}
+			
+		//background job
+		//continue
+		//wait job finish
+		}
+	for(int i =0; i<numCommands;i++)
 	{
 		printComStruct(&(commandArray[i]));
 	}
-	pid=fork();
-	if(pid==0)
-	{
-		execvp(commandArray[0].argv[0], commandArray[0].argv);
-	}
+//	}
 	return 0;
 }

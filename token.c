@@ -1,6 +1,7 @@
 #include "token.h"
+#include <string.h>
 
-int tokenise(char *inputLine, char *inToken[])
+void tokenise(char *inputLine, char *inToken[])
 {
 	char *token;
 	int count=0;
@@ -16,5 +17,11 @@ int tokenise(char *inputLine, char *inToken[])
 		inToken[count]=token;
 		
 	}
-	return count;
+}
+void initialiseTokenArray(char* inToken[])
+{
+	for(int i=0;i<MAX_NUM_TOKENS;i++)
+	{
+		inToken[i]=NULL;
+	}
 }
