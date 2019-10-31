@@ -6,7 +6,6 @@
 #include "token.h"
 #include "command.h"
 #include "menu.h"
-#include "additionalCommands.c"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -20,7 +19,6 @@ int main()
 	int p[2];
 
 	char *prompt="%";
-	int again=1;
 	int numCommands=0;
 
 	char input[BUFFER];
@@ -30,14 +28,17 @@ int main()
 	Command commandArray[MAX_NUM_COMMANDS];
 	initialiseCommandArray(commandArray);
 	
-//	while(1)
-//	{
+	while(1)
+	{
+		char* inputP=NULL;
+		int again=1;
+
 		displayPrompt(prompt);
 		while(again)
 		{
 			again=0;
-			fgets(input, BUFFER, stdin);
-			if(input==NULL)
+			inputP=fgets(input, BUFFER, stdin);
+			if(inputP==NULL)
 			{
 				if(errno==EINTR)
 				{
@@ -56,19 +57,22 @@ int main()
 			}
 		
 			//create child processes
-			if(strcmp(commandArray[i].commandSuffix, "|")==0)
+				//conditional jump or move depends
+				//on unitilised variable
+			/*if(strcmp(&(commandArray[i].commandSuffix), "|")==0)
 			{
-				
-			}
+					
+			}*/
 			
 		//background job
-		//continue
+			//continue
 		//wait job finish
 		}
-	for(int i =0; i<numCommands;i++)
-	{
-		printComStruct(&(commandArray[i]));
+		//kept in main for debugging
+		for(int i =0; i<numCommands;i++)
+		{
+			printComStruct(&(commandArray[i]));
+		}
 	}
-//	}
 	return 0;
 }

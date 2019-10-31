@@ -14,6 +14,8 @@ void displayMenu()
 	printf("\n\n");
 	printf("    ICT374 Assignment Two- Simple Shell\n");
 	printf("          Robert Bessell 33579862\n");
+	printf("		     +");
+	printf("	  Daniel Sharpe 33559778");
 	printf("\n\n");
 	printf("*******************************************");
 	printf("\n\n\n\n");
