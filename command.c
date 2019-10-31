@@ -58,7 +58,7 @@ void buildCommandArgumentArray(char*token[], Command *cp, int *inCounter)
 
 	if(cp->argv==NULL)
 	{
-		perror("Error in realloc");
+		perror("Error no commands found, exiting");
 		exit(1);
 	}
 
