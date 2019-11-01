@@ -82,11 +82,12 @@ int main()
 				//on unitilised variable
 			if(strcmp((&commandArray[i].commandSuffix), "|")==0)
 			{
-				if(executePipeCommand(commandArray[i].argv, commandArray[i+1].argv)!=0)
+				if((executePipeCommand(commandArray[i].argv, commandArray[i+1].argv))!=0)
 				{
 					perror("Error in running pipe");
 					exit(1);
 				}
+				++i;
 			}
 				
 		//background job

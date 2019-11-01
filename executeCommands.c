@@ -27,11 +27,12 @@ int executePipeCommand(char** pipe1, char** pipe2)
 		close(p[0]);
 		dup2(p[1], STDOUT_FILENO);
 		close(p[1]);
-
-		execvp(pipe1[0], pipe1);
-
-		perror("Error in execvp\n");
-		exit(1);
+		
+		if((execvp(pipe1[0], pipe1))<0)
+		{
+			perror("Error in execvp\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 	else if(pid>0)
 	{
@@ -45,20 +46,24 @@ int executePipeCommand(char** pipe1, char** pipe2)
 			close(p[1]);
 			dup2(p[0], STDIN_FILENO);
 			close(p[0]);
-
-			execvp(pipe2[0], pipe2);
-
-			perror("Error in execvp\n");
-			exit(1);
-		}
-		if(pid>0)
-		{
-			while(n>0)
+			
+			sleep(1);
+			if((execvp(pipe2[0], pipe2))<0)
 			{
-				pid=wait(&status);
-				--n;
+				perror("Error in execvp\n");
+				exit(EXIT_FAILURE);
 			}
-			return 0;
 		}
+	}
+	if(pid>0)
+	{
+		close(p[0]);
+		close(p[1]);
+		while(n>0)
+		{
+			wait(&status);
+			--n;
+		}
+		return 0;
 	}
 }
