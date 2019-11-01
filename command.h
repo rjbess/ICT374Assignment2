@@ -4,15 +4,17 @@
 #define conSep   "&"
 #define seqSep   ";"
 
+//Holds a single command
+//Built on Lab 8 and 9 work
 struct CommandStruct
 {
-	char* commandPathName;
-	int argc;
-	char *argv[MAX_NUM_ARGUMENTS];
+	char* commandPathName;//Name of command, argv[0]
+	int argc;// Number of arguments including redirections
+	char *argv[MAX_NUM_ARGUMENTS];// Array of command arguments not including redirection
    		
-	char commandSuffix;
-	char *stdin_file;
-	char *stdout_file;
+	char commandSuffix;//Command suffix '|', ';', '&'
+	char *stdin_file;//NULL or stdin value
+	char *stdout_file;//NULL or stdout value
 };
 
 typedef struct CommandStruct Command;  // command type

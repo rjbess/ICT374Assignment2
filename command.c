@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//Returns 1 if the token is a command separator
+//0 if not. Taken from Lab 8 command.c
 int separator(char *token)
 {
 	int i=0;
@@ -18,12 +20,20 @@ int separator(char *token)
 	}
 	return 0;
 }
+//Searches the inputted token array
+//for stdin/ stdout redirection ('<'|'>')
+//If found sets the corresponding commands redirction to that
+//token. inCounter is used to count the token array
+//for each command 
 void searchRedirection(char *token[], Command *cp, int *inCounter)
 {
 	int i=0, result;
 	char *in="<";
 	char *out=">";
-
+	
+	//Seaches the inputted token array for a redirection
+	//Will only loop the token array until one is found or 
+	//the number of argumemts
 	while(i<cp->argc && cp->stdin_file==NULL && cp->stdout_file==NULL)
 	{	
 		result=strcmp(token[*inCounter], in);
@@ -42,15 +52,19 @@ void searchRedirection(char *token[], Command *cp, int *inCounter)
 		i++;
 	}
 }
+//Sets the commands argc (Number of arguments, including redirction)
+//And its command Suffix
 void fillCommandStructure(Command *cp,int inFirst, int inLast, char *inSuffix)
 {
-	cp->argc = inLast-inFirst;
-	cp->commandSuffix=*inSuffix;
+	cp->argc = inLast-inFirst;//Number of command arguments
+	cp->commandSuffix=*inSuffix;//Command suffix- ; & |
 }
+//For the inputted commmand will build its argv (command argument array)
 void buildCommandArgumentArray(char*token[], Command *cp, int *inCounter)
 {
 	int i, k=0;
 	
+	//If redirection is found number of arguments is reduced by two
 	if(cp->stdin_file!=NULL || cp->stdout_file!=NULL)
 	{
 		cp->argc-=2;
@@ -62,7 +76,11 @@ void buildCommandArgumentArray(char*token[], Command *cp, int *inCounter)
 		exit(1);
 	}
 
+	//Sets command path name to first command
 	cp->commandPathName=token[*inCounter];
+	
+	//Loops around for number of command arguments and sets command
+	//arguement array
 	for(i=0; i<cp->argc;(*inCounter)++)
 	{	
 		cp->argv[k]=token[*inCounter];
@@ -72,11 +90,18 @@ void buildCommandArgumentArray(char*token[], Command *cp, int *inCounter)
 	}
 	(*inCounter)++;
 	cp->argv[k]=NULL;
+
+	//If rediection is found will increment the counter by two
+	//so the next command array is correct
 	if(cp->stdin_file!=NULL || cp->stdout_file!=NULL)
 	{
 		(*inCounter)+=2;
 	}
 }
+//Built upon Lab 8 and 9
+//Original Author Hong Xie
+//The main function which sets each command
+//and its elements
 int separateCommands(char *token[], Command command[])
 {
 	int i;
@@ -122,18 +147,29 @@ int separateCommands(char *token[], Command command[])
 	} 
 	// calculate the number of commands
 	int nCommands = c;
+	//Used to count each token in tokenArray
+	//and for every command set its redirection
+	//As such can't be reset after each command
 	int counter=0;
 	int *counterP=&counter;
+	//USed to count each token in tokenArray
+	//and for every command build its argument array
+	//As such can't be reset after each command
 	int counterTwo=0;
 	int *counterPTwo=&counterTwo;
 
+	//For each command set redirection and build its argument array
 	for(int j=0; j<c;j++)
 	{
 		searchRedirection(token, &command[j], counterPTwo);
 		buildCommandArgumentArray(token, &command[j], counterP);
 	}
-	return nCommands; 
+	return nCommands;//Number of commands
 }
+//Used mainly for debugging
+//Prints out all attributes of a single command
+//USed from online resource
+//"Notes of Implementation of Shll Project"
 void printComStruct(Command *com)
 { 
 	int i;
@@ -163,6 +199,7 @@ void printComStruct(Command *com)
 	}
 	fprintf(stderr,"com_suffix=%c\n\n", com->commandSuffix);
 }
+//Initialise all commands in the commandArray
 void initialiseCommandArray(Command command[])
 {
 	for(int i=0;i<MAX_NUM_COMMANDS;i++)

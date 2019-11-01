@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//Clears teminal screen
 void clearMenu()
 {
 	printf("\033[2J\033[1;1H");
 }
+//Displays opneing menu
 void displayMenu()
 {
 	clearMenu();
@@ -20,6 +22,7 @@ void displayMenu()
 	printf("*******************************************");
 	printf("\n\n\n\n");
 }
+//Displays prompt
 void displayPrompt(char* inPrompt)
 {	
 	printf("%s", inPrompt);
