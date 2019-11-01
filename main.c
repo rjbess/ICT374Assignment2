@@ -6,18 +6,19 @@
 #include "token.h"
 #include "command.h"
 #include "menu.h"
-
-#include <unistd.h>
-#include <sys/types.h>
+#include "executeCommands.h"
+//#include <unistd.h>
+//#include <sys/types.h>
+//#include <sys/wait.h>
+#include <sys/stat.h>
+//#include <fcntl.h>
 
 #define BUFFER MAX_NUM_TOKENS
-#define PIPEBUFFER 512
+
+
 
 int main()
 {
-	pid_t pid;
-	int p[2];
-
 	char *prompt="%";
 	int numCommands=0;
 
@@ -79,10 +80,14 @@ int main()
 			//create child processes
 				//conditional jump or move depends
 				//on unitilised variable
-			/*if(strcmp(&(commandArray[i].commandSuffix), "|")==0)
+			if(strcmp((&commandArray[i].commandSuffix), "|")==0)
 			{
-					
-			}*/
+				if(executePipeCommand(commandArray[i].argv, commandArray[i+1].argv)!=0)
+				{
+					perror("Error in running pipe");
+					exit(1);
+				}
+			}
 				
 		//background job
 			//continue
