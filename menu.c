@@ -1,3 +1,6 @@
+#ifndef MENU_C
+#define MENU_C
+
 #include "menu.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,3 +31,4 @@ void displayPrompt(char* inPrompt)
 	printf("%s", inPrompt);
 }
 
+#endif

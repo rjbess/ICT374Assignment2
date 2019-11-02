@@ -1,3 +1,6 @@
+#ifndef COMMAND_C
+#define COMMAND_C
+
 #include <string.h>
 #include "command.h"
 #include <stdlib.h>
@@ -215,3 +218,4 @@ void initialiseCommandArray(Command command[])
 		command[i].stdout_file=NULL;
 	}
 }
+#endif

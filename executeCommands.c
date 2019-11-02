@@ -1,3 +1,6 @@
+#ifndef EXECUTECOMMANDS_C
+#define EXECUTECOMMANDS_C
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -5,6 +8,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include "executeCommands.h"
+#include <string.h>
 
 int executePipeCommand(char** pipe1, char** pipe2)
 {
@@ -24,8 +28,8 @@ int executePipeCommand(char** pipe1, char** pipe2)
 	}
 	if(pid==0)
 	{
-		close(p[0]);
 		dup2(p[1], STDOUT_FILENO);
+		close(p[0]);
 		close(p[1]);
 		
 		if((execvp(pipe1[0], pipe1))<0)
@@ -43,11 +47,10 @@ int executePipeCommand(char** pipe1, char** pipe2)
 		}
 		if(pid2==0)
 		{
-			close(p[1]);
 			dup2(p[0], STDIN_FILENO);
+			close(p[1]);
 			close(p[0]);
-			
-			sleep(1);
+		
 			if((execvp(pipe2[0], pipe2))<0)
 			{
 				perror("Error in execvp\n");
@@ -67,3 +70,27 @@ int executePipeCommand(char** pipe1, char** pipe2)
 		return 0;
 	}
 }
+int checkJobType(Command *inCommand)
+{
+	if((inCommand->stdin_file) ==NULL && (inCommand->stdout_file)==NULL && ((strcmp(&(inCommand->commandSuffix), ";")==0)||(strcmp(&(inCommand->commandSuffix), "&")==0)))
+	{
+		return 0;
+	}
+	else if(strcmp(&(inCommand->commandSuffix), "|")==0)
+	{
+		return 1;
+	}
+	else if(inCommand->stdin_file!=NULL)
+	{
+		return 2;
+	}
+	else if(inCommand->stdout_file!=NULL)
+	{
+		return 3;
+	}
+	else 
+	{
+		return -1;
+	}
+}
+#endif
