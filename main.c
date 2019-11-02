@@ -74,6 +74,42 @@ int main()
 		
 		for(int i=0;i<numCommands;++i)
 		{
+			if(strcmp(commandArray[i].argv[0],"exit")==0)
+			{
+			exit(0);
+			}
+	
+			if(strcmp(commandArray[i].argv[0]),"pwd")==0)
+			{
+			printf("Current Path: %s", getcwd(path,100));
+			}
+		
+			if(strcmp(commandArray[i].argv[0], "cd")==0)
+			{
+				if(commandArray[i].argc = 2)
+				{
+					chdir(commandArray[i].argv[1]);
+				}
+
+				else if(commandArray[i].argc = 1)
+				{
+
+				chdir(getenv("HOME"));
+
+				}
+			}
+			
+			if(strcmp(commandArray[i].argv[0]),"cwd")==0)
+			{
+				chdir(commandArray[i].argv[1]);
+			}
+
+
+			if (strcmp(commandArray[i].argv[0],"prompt")==0)
+			{
+				strcpy(prompt, commandArray[i].argv[1]);
+			}			
+			
 			int more=1;
 			while(more)
 			{
@@ -82,10 +118,6 @@ int main()
 				{
 					more=0;
 				}
-			}
-			if(strcmp(commandArray[i].argv[0], "exit")==0)
-			{
-				exit(0);
 			}
 			jobType=checkJobType(&commandArray[i]);
 
