@@ -12,12 +12,17 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <glob.h>
 
 #define BUFFER MAX_NUM_TOKENS
 
 int main()
 {
-	char *prompt="%";
+	//glob_t glob1;
+	char * pattern1="*";
+	char * pattern2="?";
+
+	char prompt[32]="%";
 	int numCommands=0;
 	int jobType;
 	
@@ -32,12 +37,12 @@ int main()
  	//After be tokenised 
 	//Initialised to null
 	char *tokenArray[BUFFER];
-	initialiseTokenArray(tokenArray);
+//	initialiseTokenArray(tokenArray);
 	
 	//Creates 100 command structs
 	//And initialises its values
 	Command commandArray[MAX_NUM_COMMANDS];
-	initialiseCommandArray(commandArray);
+//	initialiseCommandArray(commandArray);
 	
 	//Loops until user exits
 	//Displays prompt, takes in command line
@@ -47,6 +52,8 @@ int main()
 	//Original Author Hong Xie
 	while(1)
 	{
+		initialiseTokenArray(tokenArray);
+		initialiseCommandArray(commandArray);
 		//From "Notes on Implementation"
 		//Original Author Hong Xie
 		//Used so the slow system calles wont be
@@ -76,45 +83,51 @@ int main()
 		{
 			if(strcmp(commandArray[i].argv[0],"exit")==0)
 			{
-			exit(0);
+				exit(0);
 			}
-	
-			if(strcmp(commandArray[i].argv[0]),"pwd")==0)
+			else if(strcmp(commandArray[i].argv[0],"pwd")==0)
 			{
-			printf("Current Path: %s", getcwd(path,100));
+				char cwd[128];
+				printf("Current Path: %s\n", getcwd(cwd,128));
+				continue;
 			}
-		
-			if(strcmp(commandArray[i].argv[0], "cd")==0)
+			else if(strcmp(commandArray[i].argv[0], "cd")==0)
 			{
-				if(commandArray[i].argc = 2)
+				if(commandArray[i].argc == 2)
 				{
 					chdir(commandArray[i].argv[1]);
+					continue;
 				}
-
-				else if(commandArray[i].argc = 1)
+				else if(commandArray[i].argc == 1)
 				{
-					if(strcmp(getcwd(path,100), getenv("HOME"))==0)
+					char cwd[128];
+					if(strcmp(getcwd(cwd,128), getenv("HOME"))==0)
 					{
 						printf("Current directory is home directory");
+						continue;
 					}
 					else
 					{
 						chdir(getenv("HOME"));
+						continue;
 					}
 				}
 			}
-
-			if(strcmp(commandArray[i].argv[0]),"cwd")==0)
+			else if(strcmp(commandArray[i].argv[0],"cwd")==0)
 			{
 				chdir(commandArray[i].argv[1]);
+				continue;
 			}
-
-
-			if (strcmp(commandArray[i].argv[0],"prompt")==0)
+			else if (strcmp(commandArray[i].argv[0],"prompt")==0)
 			{
+				if(strlen(commandArray[i].argv[1])>31)
+				{
+					printf("Invalid prompt; Too many character\n");
+					continue;
+				}
 				strcpy(prompt, commandArray[i].argv[1]);
-			}			
-			
+				continue;
+			}	
 			int more=1;
 			while(more)
 			{
@@ -126,16 +139,19 @@ int main()
 			}
 			jobType=checkJobType(&commandArray[i]);
 
-			if(jobType==0 && pid==0)
+			if(jobType==0)
 			{
 				if((pid=fork())<0)
 				{
 					perror("Error in forking\n");
 					exit(1);
 				}
-				execvp((commandArray[i].argv[0]),((commandArray[i].argv)));
-				perror("Error in execvp\n");
-				exit(1);
+				if(pid==0)
+				{
+					execvp((commandArray[i].argv[0]),((commandArray[i].argv)));
+					perror("Error in execvp\n");
+					exit(1);
+				}
 			
 			}
 			if(jobType==1)
@@ -194,6 +210,44 @@ int main()
 				}
 				i++;
 			}
+			if(jobType==2)
+			{
+			
+				int fd;
+				fd=open(commandArray[i].stdin_file, O_RDONLY|O_CREAT, 0766);
+
+				if((pid=fork())<0)
+				{
+					perror("Error in forking");
+					exit(1);
+				}
+				if(pid==0)
+				{
+					dup2(fd, STDIN_FILENO);
+					execvp(commandArray[i].argv[0], commandArray[i].argv);
+					perror("Error in execvp");
+					exit(1);
+				}
+
+			}
+			else if(jobType==3)
+			{
+				int fd;
+				fd= open(commandArray[i].stdout_file,O_WRONLY|O_CREAT, 0766);
+				if((pid=fork())<0)
+				{
+					perror("Error in forking");
+					exit(1);
+				}
+				if(pid==0)
+				{
+					dup2(fd, STDOUT_FILENO);
+					execvp(commandArray[i].argv[0], commandArray[i].argv);
+					perror("Error in execvp");
+					exit(1);
+				}
+
+			}
 			if(strcmp(&(commandArray[i].commandSuffix),"&")==0)
 			{
 				continue;
@@ -206,10 +260,10 @@ int main()
 		//Loops through all commands
 		//and prints them out
 		//kept in main for debugging
-		for(int i =0; i<numCommands;i++)
+		/*for(int i =0; i<numCommands;i++)
 		{
 			printComStruct(&(commandArray[i]));
-		}
+		}*/
 	}
 	return 0;
 }
