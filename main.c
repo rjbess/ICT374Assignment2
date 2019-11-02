@@ -93,12 +93,17 @@ int main()
 
 				else if(commandArray[i].argc = 1)
 				{
-
-				chdir(getenv("HOME"));
-
+					if(strcmp(getcwd(path,100), getenv("HOME"))==0)
+					{
+						printf("Current directory is home directory");
+					}
+					else
+					{
+						chdir(getenv("HOME"));
+					}
 				}
 			}
-			
+
 			if(strcmp(commandArray[i].argv[0]),"cwd")==0)
 			{
 				chdir(commandArray[i].argv[1]);
