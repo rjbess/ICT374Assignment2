@@ -194,10 +194,10 @@ int main()
 						i++;
 						int fd=-1;
 						
-		if((commandArray[i].stdout_file)!=NULL)
-		{
-			fd= open(commandArray[i].stdout_file,O_WRONLY|O_CREAT, 0766);
-		}
+						if(commandArray[i].stdout_file!=NULL)
+						{
+							fd= open(commandArray[i].stdout_file,O_WRONLY|O_CREAT, 0766);
+						}
 
 						if((pid2=fork())<0)
 						{
