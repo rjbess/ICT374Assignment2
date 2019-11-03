@@ -11,16 +11,11 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <glob.h>
 
 #define BUFFER MAX_NUM_TOKENS
 
 int main()
 {
-	//glob_t glob1;
-	char * pattern1="*";
-	char * pattern2="?";
-
 	char prompt[32]="%";
 	int numCommands=0;
 	int jobType;

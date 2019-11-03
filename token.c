@@ -2,14 +2,13 @@
 #include <string.h>
 
 //Takes in the command line and splits it up into tokens
-//on | & ; and stores in tokenArray
+//on '\t\n ' and stores in tokenArray
 //Build in Lab7
 void tokenise(char *inputLine, char *inToken[])
 {
 	char *token;
 	int count=0;
 
-	//Separates on | & ;
 	token= strtok(inputLine, seperatingChars);
 	inToken[count]=token;
 
