@@ -76,10 +76,10 @@ int checkJobType(Command *inCommand)
 	{
 		return 0;
 	}
-	else if(strcmp(&(inCommand->commandSuffix), "|")==0)
+	/*else if(strcmp(&(inCommand->commandSuffix), "|")==0)
 	{
 		return 1;
-	}
+	}*/
 	else if(inCommand->stdin_file!=NULL)
 	{
 		return 2;
@@ -90,7 +90,7 @@ int checkJobType(Command *inCommand)
 	}
 	else 
 	{
-		return -1;
+		return 1;
 	}
 }
 #endif
