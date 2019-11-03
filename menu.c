@@ -4,7 +4,7 @@
 #include "menu.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <unistd.h>
 //Clears teminal screen
 void clearMenu()
 {
@@ -17,13 +17,15 @@ void displayMenu()
 	printf("\n\n\n\n");
 	printf("*******************************************");
 	printf("\n\n");
-	printf("    ICT374 Assignment Two- Simple Shell\n");
+	printf("    ICT374 Assignment Two- Simple Shell\n\n");
 	printf("          Robert Bessell 33579862\n");
-	printf("		     +");
+	printf("		     +\n");
 	printf("	  Daniel Sharpe 33559778");
 	printf("\n\n");
 	printf("*******************************************");
 	printf("\n\n\n\n");
+	sleep(5);
+	clearMenu();
 }
 //Displays prompt
 void displayPrompt(char* inPrompt)

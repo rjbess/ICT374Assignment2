@@ -6,7 +6,6 @@
 #include "token.h"
 #include "command.h"
 #include "menu.h"
-#include "executeCommands.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -36,15 +35,13 @@ int main()
 	
 	//Stores the command line tokens
  	//After be tokenised 
-	//Initialised to null
 	char *tokenArray[BUFFER];
-//	initialiseTokenArray(tokenArray);
 	
 	//Creates 100 command structs
-	//And initialises its values
 	Command commandArray[MAX_NUM_COMMANDS];
-//	initialiseCommandArray(commandArray);
 	
+
+	displayMenu();
 	//Loops until user exits
 	//Displays prompt, takes in command line
 	//Gets tokens and sets command array
@@ -53,7 +50,9 @@ int main()
 	//Original Author Hong Xie
 	while(1)
 	{
+		//Initialises all members of array to null
 		initialiseTokenArray(tokenArray);
+		//Initialises all commands
 		initialiseCommandArray(commandArray);
 		//From "Notes on Implementation"
 		//Original Author Hong Xie
@@ -282,10 +281,6 @@ int main()
 					--n;
 				}
 			}
-		}
-		for(int j =0; j <numCommands;j++)
-		{
-			printComStruct(&commandArray[j]);
 		}
 	}
 	return 0;

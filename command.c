@@ -218,4 +218,27 @@ void initialiseCommandArray(Command command[])
 		command[i].stdout_file=NULL;
 	}
 }
+int checkJobType(Command *inCommand)
+{
+	if(strcmp(&(inCommand->commandSuffix), "|")==0)
+	{
+		return 1;
+	}
+	else if(inCommand->stdin_file!=NULL)
+	{
+	        return 2;
+	}
+	else if(inCommand->stdout_file!=NULL)
+	{
+	        return 3;
+	}
+	/*else if((strcmp(&(inCommand->commandSuffix), ";")==0)||(strcmp(&(inCommand->comandSuffix), "&")==0))
+	{
+	        return 0;
+	}*/
+	else
+	{
+	        return 0;
+	}
+}
 #endif
