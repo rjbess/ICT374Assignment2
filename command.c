@@ -41,13 +41,11 @@ void searchRedirection(char *token[], Command *cp, int *inCounter)
 		if(result==0)
 		{
 			cp->stdin_file=token[(*inCounter)+1];
-		//	(*inCounter)++;
 		}
 		result=strcmp(token[*inCounter], ">");
 		if(result==0)
 		{
 			cp->stdout_file=token[(*inCounter)+1];
-		//	(*inCounter)++;
 		}
 		(*inCounter)++;
 		i++;
@@ -217,6 +215,10 @@ void initialiseCommandArray(Command command[])
 		command[i].stdout_file=NULL;
 	}
 }
+//Takes in an command and checks its attributes
+//- input redirectio, commandSuffix and returns
+//an int. This is so the main can determine
+//how to treat the command
 int checkJobType(Command *inCommand)
 {
 	if(strcmp(&(inCommand->commandSuffix), "|")==0)

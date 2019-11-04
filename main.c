@@ -42,8 +42,9 @@ int main()
 	//Creates 100 command structs
 	Command commandArray[MAX_NUM_COMMANDS];
 	
-
+	//Clears screen
 	printf("\033[2J\033[1;1H");
+	
 	//Loops until user exits
 	//Displays prompt, takes in command line
 	//Gets tokens and sets command array
@@ -56,6 +57,7 @@ int main()
 		initialiseTokenArray(tokenArray);
 		//Initialises all commands
 		initialiseCommandArray(commandArray);
+		
 		//From "Notes on Implementation"
 		//Original Author Hong Xie
 		//Used so the slow system calles wont be
@@ -81,26 +83,34 @@ int main()
 		//Converts tokens into the command struct
 		numCommands=separateCommands(tokenArray, commandArray);
 		
+		//For every command in commandArray
+		//Sets up redirection, piping and
+		//creates a child process to run it
 		for(int i=0;i<numCommands;++i)
 		{
-	
+			//Exits shell
 			if(strcmp(commandArray[i].argv[0],"exit")==0)
 			{
 				exit(0);
 			}
+			//Printes out the current directory
 			else if(strcmp(commandArray[i].argv[0],"pwd")==0)
 			{
 				char cwd[128];
 				printf("Current Path: %s\n", getcwd(cwd,128));
 				continue;
 			}
+			//Changes the shell process directory
 			else if(strcmp(commandArray[i].argv[0], "cd")==0)
 			{
+				//Will change directory to inputted value
+				//if its '..' it will move back one
 				if(commandArray[i].argc == 2)
 				{
 					chdir(commandArray[i].argv[1]);
 					continue;
 				}
+				//Changes directory to home
 				else if(commandArray[i].argc == 1)
 				{
 					char cwd[128];
@@ -121,6 +131,7 @@ int main()
 				chdir(commandArray[i].argv[1]);
 				continue;
 			}
+			//Changes prompt to inputted value
 			else if (strcmp(commandArray[i].argv[0],"prompt")==0)
 			{
 				if(strlen(commandArray[i].argv[1])>31)
@@ -130,7 +141,10 @@ int main()
 				}
 				strcpy(prompt, commandArray[i].argv[1]);
 				continue;
-			}	
+			}
+			//Claims zombie processes
+			//From Online resource
+			//'Notes on Simple Shell Implementation'
 			int more=1;
 			while(more)
 			{
@@ -141,25 +155,33 @@ int main()
 				}
 			}
 		
-			
+			//Checks command for redirection, piping
 			jobType=checkJobType(&commandArray[i]);
-
+			
+			//If piping is found creates at least two
+			//children processes and connects one stdout
+			//to the other
 			if(jobType==1)
 			{
 				pid_t pid2;
 				int p[2];
 				int np=0;
+				
+				//Counts how many pipes are in a row
 				while(strcmp(&commandArray[i].commandSuffix, "|")==0)
 				{
 					i++;
 					np++;
 				}
 				i-=np;
+
+				//Creates pipe
 				if(pipe(p)<0)
 				{
 					perror("Error in piping\n");
 					exit(1);
 				}
+				//Creates base children process
 				if((pid=fork())<0)
 				{
 					perror("Error in forking\n");
@@ -168,25 +190,29 @@ int main()
 				if(pid==0)
 				{
 					dup2(p[1], STDOUT_FILENO);
-					close(p[0]);
 					close(p[1]);
+					close(p[0]);
 
 					execvp(commandArray[i].argv[0],commandArray[i].argv);
 					perror("Error in execvp");
 					exit(1);
 				}
+				//Sets up all other children processes
 				else if(pid>0)
 				{
+					//Creates n-1 number of child processes
+					//And creates them together
 					while(strcmp(&commandArray[i].commandSuffix, "|")==0)
 					{
 						i++;
 						int fd=-1;
-						
+						//Checks if the last command has an stdout redirection
+						//If so opens the file
 						if(commandArray[i].stdout_file!=NULL)
 						{
 							fd= open(commandArray[i].stdout_file,O_WRONLY|O_CREAT, 0766);
 						}
-
+						//Creates child process
 						if((pid2=fork())<0)
 						{
 							perror("Error in forking\n");
@@ -194,18 +220,19 @@ int main()
 						}
 						if(pid2==0)
 						{
-							
+							//If stdout found
+							//closes inputs
 							if(fd!=-1)
 							{
 								dup2(fd, STDOUT_FILENO);
 								close(p[1]);
 								close(p[0]);
-								execvp(commandArray[i].argv[0], commandArray[i].argv);
+								//execvp(commandArray[i].argv[0], commandArray[i].argv);
 
 							}
 							dup2(p[0], STDIN_FILENO);
-							close(p[1]);
 							close(p[0]);
+							close(p[1]);
 							
 							execvp(commandArray[i].argv[0], commandArray[i].argv);
 							perror("Error in execvp\n");
@@ -213,6 +240,8 @@ int main()
 						}
 					}
 				}
+				//Closes parents pipes and waits
+				//for children process to finish
 				if(pid>0)
 				{
 					close(p[0]);
@@ -224,6 +253,9 @@ int main()
 					}
 				}
 			}
+			//Checks for stdin redirection 
+			//Opens file and sets process stdin to that
+			//file
 			else if(jobType==2)
 			{
 			
@@ -244,6 +276,9 @@ int main()
 				}
 
 			}
+			//Checks for stdout redirection
+			//If found opens file and directs
+			//process stdout to file
 			else if(jobType==3)
 			{
 				int fd;
@@ -262,6 +297,8 @@ int main()
 				}
 
 			}
+			//Standard process, no piping,
+			//no redirection
 			else
 			{
 				if((pid=fork())<0)
@@ -276,10 +313,14 @@ int main()
 				        exit(1);
 				}
 			}
+			//If its a background process continues
+			//to next command
 			if(strcmp(&(commandArray[i].commandSuffix),"&")==0)
 			{
 				continue;
 			}
+			//Sequential process, shell will wait 
+			//until child has finished
 			else
 			{
 				wait(&status);
