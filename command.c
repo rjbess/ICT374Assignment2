@@ -31,29 +31,28 @@ int separator(char *token)
 void searchRedirection(char *token[], Command *cp, int *inCounter)
 {
 	int i=0, result;
-	char *in="<";
-	char *out=">";
 	
 	//Seaches the inputted token array for a redirection
 	//Will only loop the token array until one is found or 
 	//the number of argumemts
-	while(i<cp->argc && cp->stdin_file==NULL && cp->stdout_file==NULL)
+	while(i<cp->argc)
 	{	
-		result=strcmp(token[*inCounter], in);
+		result=strcmp(token[*inCounter], "<");
 		if(result==0)
 		{
 			cp->stdin_file=token[(*inCounter)+1];
-			(*inCounter)++;
+		//	(*inCounter)++;
 		}
-		result=strcmp(token[*inCounter], out);
+		result=strcmp(token[*inCounter], ">");
 		if(result==0)
 		{
 			cp->stdout_file=token[(*inCounter)+1];
-			(*inCounter)++;
+		//	(*inCounter)++;
 		}
 		(*inCounter)++;
 		i++;
 	}
+	(*inCounter)++;
 }
 //Sets the commands argc (Number of arguments, including redirction)
 //And its command Suffix
@@ -232,10 +231,6 @@ int checkJobType(Command *inCommand)
 	{
 	        return 3;
 	}
-	/*else if((strcmp(&(inCommand->commandSuffix), ";")==0)||(strcmp(&(inCommand->comandSuffix), "&")==0))
-	{
-	        return 0;
-	}*/
 	else
 	{
 	        return 0;

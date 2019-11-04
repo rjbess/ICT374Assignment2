@@ -5,22 +5,29 @@
 
 #include "token.h"
 #include "command.h"
-#include "menu.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define BUFFER MAX_NUM_TOKENS
 
 int main()
 {
-	char prompt[32]="%";
-	int numCommands=0;
-	int jobType;
+	//Takes shell to ignore
+	//CTRL-C, CTRL-\, CTRL-Z
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGTSTP, SIG_IGN);
+
+
+	char prompt[32]="%";//Reconfigurable prompt
+	int numCommands=0;//Number of numbers in commandArray
 	int n=1;
-	
+	int jobType;
+
 	pid_t pid;
 	int status;
 
@@ -36,7 +43,7 @@ int main()
 	Command commandArray[MAX_NUM_COMMANDS];
 	
 
-	displayMenu();
+	printf("\033[2J\033[1;1H");
 	//Loops until user exits
 	//Displays prompt, takes in command line
 	//Gets tokens and sets command array
@@ -56,7 +63,7 @@ int main()
 		char* inputP=NULL;
 		int again=1;
 
-		displayPrompt(prompt);
+		printf("%s", prompt);
 		while(again)
 		{
 			again=0;
@@ -133,23 +140,10 @@ int main()
 					more=0;
 				}
 			}
+		
+			
 			jobType=checkJobType(&commandArray[i]);
 
-			if(jobType==0)
-			{
-				if((pid=fork())<0)
-				{
-					perror("Error in forking\n");
-					exit(1);
-				}
-				if(pid==0)
-				{
-					execvp((commandArray[i].argv[0]),((commandArray[i].argv)));
-					perror("Error in execvp\n");
-					exit(1);
-				}
-			
-			}
 			if(jobType==1)
 			{
 				pid_t pid2;
@@ -203,7 +197,11 @@ int main()
 							
 							if(fd!=-1)
 							{
-								dup2(fd, STDOUT_FILENO);					
+								dup2(fd, STDOUT_FILENO);
+								close(p[1]);
+								close(p[0]);
+								execvp(commandArray[i].argv[0], commandArray[i].argv);
+
 							}
 							dup2(p[0], STDIN_FILENO);
 							close(p[1]);
@@ -226,7 +224,7 @@ int main()
 					}
 				}
 			}
-			if(jobType==2)
+			else if(jobType==2)
 			{
 			
 				int fd;
@@ -264,17 +262,27 @@ int main()
 				}
 
 			}
+			else
+			{
+				if((pid=fork())<0)
+				{
+					perror("Error in forking\n");
+				        exit(1);
+				}
+				if(pid==0)
+				{
+					execvp((commandArray[i].argv[0]),((commandArray[i].argv)));
+				        perror("Error in execvp\n");
+				        exit(1);
+				}
+			}
 			if(strcmp(&(commandArray[i].commandSuffix),"&")==0)
 			{
 				continue;
 			}
 			else
 			{
-				while(n>0)
-				{
-					wait(&status);
-					--n;
-				}
+				wait(&status);
 			}
 		}
 	}
